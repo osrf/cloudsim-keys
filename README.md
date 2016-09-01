@@ -19,4 +19,6 @@ The .env file (not under source code management) should contain:
 CLOUDSIM_AUTH_PUB_KEY="-----BEGIN PUBLIC KEY-----\nx  ... QU=\n-----END PUBLIC KEY-----"
 ADMIN_USER="admin"
 
+## start the server ##
 
+npm start

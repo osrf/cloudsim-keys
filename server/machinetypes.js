@@ -14,6 +14,7 @@ csgrant.showLog = true
   app.get('/machinetypes',
     csgrant.authenticate,
     csgrant.ownsResource('machine_types', true),
+    csgrant.userResources,
     csgrant.allResources)
 
   app.get('/machinetypes/:mt',
