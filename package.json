@@ -4,7 +4,7 @@
   "description": "A server for vpn keys and other crypto documents",
   "main": "server/cloudsim_keys.js",
   "scripts": {
-    "test": "mocha",
+    "test": "export NODE_ENV=test; mocha",
     "start": "node server/cloudsim_keys.js"
   },
   "repository": {

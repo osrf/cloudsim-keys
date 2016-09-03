@@ -6,7 +6,6 @@ const csgrant = require('cloudsim-grant')
 
 function setRoutes(app) {
 
-
   console.log('MACHINE TYPES setRoutes')
 
   // list all resources

@@ -10,6 +10,8 @@ const morgan = require('morgan')
 const util = require('util')
 const machinetypes = require('./machinetypes')
 
+
+
 let httpServer = null
 const useHttps = true
 if(useHttps) {
@@ -22,6 +24,10 @@ if(useHttps) {
 else {
   httpServer = require('http').Server(app)
 }
+
+const database = process.env.NODE_ENV === 'test'?'cloudsim-keys-test':'cloudsim-keys'
+console.log('NODE_ENV "'+  process.env.NODE_ENV + '"')
+console.log('Database:', database)
 
 app.use(cors())
 app.use(bodyParser.json())
