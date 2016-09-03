@@ -6,7 +6,6 @@ const csgrant = require('cloudsim-grant')
 
 function setRoutes(app) {
 
-csgrant.showLog = true
 
   console.log('MACHINE TYPES setRoutes')
 
@@ -15,6 +14,17 @@ csgrant.showLog = true
     csgrant.authenticate,
     csgrant.ownsResource('machine_types', true),
     csgrant.userResources,
+    function(req, res, next) {
+      // we're going to filter out the non
+      // machine types before the next middleware.
+      req.allResources = req.userResources
+      req.userResources = req.allResources.filter( (obj)=>{
+        if(obj.name.indexOf('mt-') == 0)
+          return true
+        return false
+      })
+      next()
+    },
     csgrant.allResources)
 
   app.get('/machinetypes/:mt',
