@@ -1,17 +1,18 @@
 'use strict';
 
-console.log('test/machinetypes.js');
+console.log('test/machinetypes.js')
 
-const util = require('util');
-const should = require('should');
-const supertest = require('supertest');
-const csgrant = require('cloudsim-grant')
-const token = csgrant.token
-
+const util = require('util')
+const should = require('should')
+const supertest = require('supertest')
 
 // current dir: cloudsim_keys/test
 const app = require('../server/cloudsim_keys')
 const agent = supertest.agent(app)
+
+const csgrant = require('cloudsim-grant')
+const token = csgrant.token
+
 
 // we need fresh keys for this test
 const keys = csgrant.token.generateKeys()
@@ -23,17 +24,18 @@ let adminToken
 const bobTokenData = {username:'bob'}
 let bobToken
 
-
+function getResponse(res, print) {
+  const response = JSON.parse(res.text)
+  if(print) {
+    csgrant.dump()
+    console.trace(JSON.stringify(response, null, 2 ))
+  }
+  return response
+}
 
 describe('<Unit test Machine types>', function() {
 
   before(function(done) {
-    console.log('before before')
-    done()
-  })
-
-  before(function(done) {
-    csgrant.model.clearDb()
     token.signToken(adminTokenData, (e, tok)=>{
       console.log('token signed for user "admin"')
       if(e) {
@@ -51,18 +53,28 @@ describe('<Unit test Machine types>', function() {
     })
   })
 
+  let mtId
   describe('Create machine type', function() {
-    it('should be possible to create a machine type'), function(done) {
+    it('should be possible to create a machine type', function(done) {
       agent
       .post('/machinetypes')
       .set('Accept', 'application/json')
       .set('authorization', adminToken)
       .send({
-
+        name: 'test-1',
+        region: 'us-west-1',
+        hardware: 'hard',
+        software: 'soft'
        })
-      .enf
-
-    }
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        const response = getResponse(res)
+        response.success.should.equal(true)
+        mtId = response.id
+        done()
+      })
+    })
   })
 
   // get all resources
@@ -76,37 +88,108 @@ describe('<Unit test Machine types>', function() {
       .end(function(err,res){
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
-        var response = JSON.parse(res.text)
-// console.trace('XXXXX', JSON.stringify(response, null, 2 ))
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal('admin')
+        response.result.length.should.equal(1)
+        response.result[0].name.should.equal(mtId)
+        response.result[0].data.name.should.equal('test-1')
+        response.result[0].data.region.should.equal('us-west-1')
+        response.result[0].data.hardware.should.equal('hard')
+        response.result[0].data.software.should.equal('soft')
+        done()
+      })
+    })
+  })
+
+  // get resource
+  describe('Update resource', function() {
+    it('change the region', function(done) {
+      agent
+      .put('/machinetypes/' + mtId)
+      .set('Acccept', 'application/json')
+      .set('authorization', adminToken)
+      .send({
+        region: 'us-east-1'
+
+      })
+      .end(function(err,res){
+        res.status.should.be.equal(200)
+        const response = getResponse(res)
+        response.success.should.equal(true)
+        done()
+      })
+    })
+  })
+
+  // get all resources
+  describe('Get all machine types', function() {
+    it('region has changed', function(done) {
+      agent
+      .get('/machinetypes')
+      .set('Acccept', 'application/json')
+      .set('authorization', adminToken)
+      .send({})
+      .end(function(err,res){
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal('admin')
+        response.result.length.should.equal(1)
+        response.result[0].name.should.equal(mtId)
+        response.result[0].data.name.should.equal('test-1')
+        response.result[0].data.region.should.equal('us-east-1')
+        response.result[0].data.hardware.should.equal('hard')
+        response.result[0].data.software.should.equal('soft')
+        done()
+      })
+    })
+  })
+
+  // get resource
+  describe('Update resource', function() {
+    it('change the region', function(done) {
+      agent
+      .delete('/machinetypes/' + mtId)
+      .set('Acccept', 'application/json')
+      .set('authorization', adminToken)
+      .send({})
+      .end(function(err,res){
+        res.status.should.be.equal(200)
+        const response = getResponse(res)
+        response.success.should.equal(true)
+        done()
+      })
+    })
+  })
+
+  // get all resources
+  describe('Get all machine types', function() {
+    it('no resources left', function(done) {
+      agent
+      .get('/machinetypes')
+      .set('Acccept', 'application/json')
+      .set('authorization', adminToken)
+      .send({})
+      .end(function(err,res){
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
         response.success.should.equal(true)
         response.requester.should.equal('admin')
         response.result.length.should.equal(0)
-//        response.result[0].name.should.equal('')
-//        response.result[1].name.should.equal('')
-//        response.result[2].name.should.equal('')
-
         done()
       })
     })
   })
 
-/*
-  // get resource
-  describe('Get resource', function() {
-    it('should not be possible for bob to get sim-1 anymore', function(done) {
-      agent
-      .get('/simulations/mt-1')
-      .set('Acccept', 'application/json')
-      .set('authorization', bobToken)
-      .send({})
-      .end(function(err,res){
-        res.status.should.be.equal(401)
-        var response = JSON.parse(res.text)
-        response.success.should.equal(false)
-        should.exist(response.error)
-        done()
-      })
-    })
+
+
+  after(function(done) {
+    console.log('after everything')
+    csgrant.model.clearDb()
+    done()
   })
-*/
+
 })

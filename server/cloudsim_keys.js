@@ -54,7 +54,7 @@ console.log('admin user: ' + process.env.ADMIN_USER)
 csgrant.init(adminUser, {'vpn_keys': {},
                          'machine_types': {}
                         },
-                        'cloudsim-keys',
+                        database,
                         (err)=> {
     if(err)
       console.log('Error loading resources: ' + err)
