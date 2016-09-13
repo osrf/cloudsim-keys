@@ -41,8 +41,8 @@ dotenv.load()
 // the port of the server
 const port = process.env.CLOUDSIM_PORT || 4000
 
-const adminUser = process.env.ADMIN_USER || 'admin'
-console.log('admin user: ' + process.env.ADMIN_USER)
+const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
+console.log('admin user: ' + adminUser)
 
 // we create 2 initial resources
 csgrant.init(adminUser, {'vpn_keys': {},
