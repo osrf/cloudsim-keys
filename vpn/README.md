@@ -1,5 +1,5 @@
 
-# SRC and vpn
+# Sample Robotics Challenge (SRC) and Virtual Private Network (vpn) configuration
 
 Used to generate the vpn keys for simulation server and "ocu" (onboard) computer, from
 your machine (field computer).
