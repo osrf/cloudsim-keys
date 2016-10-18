@@ -17,7 +17,7 @@ CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Script dir: $CDIR"
 
 export SRC_REMOTE_VPN_IP=172.17.0.2
-export EASY_RSA=$CDIR/../../src_vpn_keys
+export EASY_RSA=$CDIR/../../../src_vpn_keys
 # export EASY_RSA="`pwd`"
 echo "easy-rsa ca dir: $EASY_RSA"
 
