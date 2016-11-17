@@ -44,20 +44,20 @@ Each server needs multiple files: ca cert, server key, dh, etc... Those are
 generated in the EASY_RSA keys directory. Some are shared between the client and the server.
 
 From the src_vpnkeys (your easy_rsa install):
+~~~
+./clean-all
 ./build-ca --batch
 ./build-key-server --batch $server_name
-./build-key --batch scr-01
 ./build-dh
-
-cd $keys_directory (the keys directory inside the easy_rsa install)
-openvpn --genkey --secret ta.key
+~~~
 
 # generate client keys #
 
 For client key names (you can generate multiple keys per server), use  names like src-01-01, src-01-02 (add -xx to
 the server number). Concurrent connections of clients with different keys are supported.
-
+~~~
 ./build-key $client_name
+~~~
 
 ## Generate openvpn configs for the simulation server ##
 
