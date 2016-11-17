@@ -39,7 +39,7 @@ const csgrant = require('cloudsim-grant')
 dotenv.load()
 
 // the port of the server
-const port = process.env.CLOUDSIM_PORT || 4000
+const port = process.env.PORT || 4000
 
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 console.log('admin user: ' + adminUser)
