@@ -2,14 +2,15 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-USAGE="create_vpn_server_bundle.bash <servername>"
+USAGE="create_vpn_server_bundle.bash <servername> <portnumber>"
 
-if (( $# != 1)); then
+if (( $# != 2)); then
   echo $USAGE
   exit 1
 fi
 
 servername=$1
+portnumber=$2
 outdir=`pwd`
 
 key_root_dir=/opt/sasc-vpn
@@ -20,7 +21,7 @@ if [[ ! -d $key_dir ]]; then
 fi
 
 tmpdir=`mktemp -d`
-sed "s/SERVER/$servername/" $DIR/server_openvpn_tap.conf > $tmpdir/openvpn.conf
+sed "s/SERVER/$servername/" $DIR/server_openvpn_tap.conf | sed "s/PORT/$portnumber/" > $tmpdir/openvpn.conf
 cp $key_dir/ca.crt $tmpdir
 cp $key_dir/ca.key $tmpdir
 cp $key_dir/dh2048.pem $tmpdir
