@@ -1,3 +1,41 @@
+# Using scripts for key generation and bundling
+
+## Make the server-side keys
+
+To create server-side VPN keys and related assets:
+~~~
+sudo ./create_vpn_server_keys.bash myserver1
+~~~
+It will produce output in `/opt/sasc-vpn/myserver1`. Do this once for each
+server, using a different name for each one.
+
+## Make the client-side keys
+
+After creating the server-side keys, you can create client-side keys:
+~~~
+sudo ./create_vpn_client_keys.bash myserver1 myclient1
+~~~
+It will produce output in `/opt/sasc-vpn/myserver1`.  Do this once for each
+client, using a different name for each one.
+
+## Bundle the server-side keys
+
+After creating the server-side keys, you can bundle them:
+~~~
+sudo ./create_vpn_server_bundle.bash myserver1
+~~~
+It will produce output in `./server_vpn.tar.gz`. This tarbomb contains
+everything necessary to run that OpenVPN server.
+
+## Bundle the client-side keys
+
+After creating the server-side keys and a client-side key, and after you know
+the IP address of the server, you can bundle the client-side keys, e.g.:
+~~~
+sudo ./create_vpn_server_bundle.bash myserver1 myclient1 10.0.0.1
+~~~
+It will produce output in `./client_vpn.tar.gz`. This tarbomb contains
+everything necessary to run that OpenVPN client.
 
 # Sample Robotics Challenge (SRC) and Virtual Private Network (vpn) configuration
 
