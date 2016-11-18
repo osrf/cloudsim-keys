@@ -32,7 +32,7 @@ everything necessary to run that OpenVPN server.
 After creating the server-side keys and a client-side key, and after you know
 the IP address of the server, you can bundle the client-side keys, e.g.:
 ~~~
-sudo ./create_vpn_server_bundle.bash myserver1 myclient1 10.0.0.1
+sudo ./create_vpn_client_bundle.bash myserver1 myclient1 10.0.0.1
 ~~~
 It will produce output in `./client_vpn.tar.gz`. This tarbomb contains
 everything necessary to run that OpenVPN client.
