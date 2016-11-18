@@ -1,6 +1,12 @@
 #!/bin/bash
 
-# $1 is server name, $2 is vpn port
+USAGE="gen_server.bash <servername> <serverport>"
+
+ if (( $# != 2)); then
+   echo $USAGE
+   exit 1
+ fi
+
 SERVER=$1
 PORT=$2
 
@@ -24,12 +30,10 @@ DST="$KEYS_DIR/$SERVER/server_vpn.tar.gz"
 if [ -f $SRC ]
 then
   # create dst path if doesn't exist
-
   mkdir -p $(dirname "$DST")
-  echo "Copying keys to $DST"
+  echo "Moving keys to $DST"
 
-  # copy generated server key bundle to dst path
-  # rm -fr $DST
+  # move generated server key bundle to dst path
   mv $SRC $DST
 else
   echo "DIR $SRC does not exist."
