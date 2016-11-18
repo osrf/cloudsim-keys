@@ -1,14 +1,11 @@
 'use strict'
 const csgrant = require('cloudsim-grant')
 const fs = require('fs')
-var exec = require('child_process').exec
-
-const VPN_KEY_PAIR_COUNT = 2;
-let vpnKeyPairIndex = 0;
-
-const VPN_CLIENT_KEY_COUNT = 2;
+const exec = require('child_process').exec
+const spawn = require('child_process').spawn
 
 const VPN_SCRIPT_DIR = __dirname + "/../vpn"
+const VPN_KEYS_DIR = __dirname + "/../keys/sasc"
 
 // Sets the routes for downloading the keys
 // app: the express app
@@ -30,9 +27,11 @@ function setRoutes(app) {
       const op = 'createVpnKey'
       const user = req.user
       const keyName = req.body.name
+      const serverPort = req.body.port
       const grantee = req.body.user
 
       console.log('name: ' + keyName)
+      console.log('port: ' + serverPort)
       console.log('user: ' + user)
       console.log('grantee: ' + grantee)
 
@@ -41,7 +40,7 @@ function setRoutes(app) {
         return
       }
 
-      const resourceData = {name: keyName}
+      const resourceData = {name: keyName, port: serverPort}
 
       csgrant.getNextResourceId('vpn', (err, resourceName) => {
         if(err) {
@@ -55,17 +54,32 @@ function setRoutes(app) {
               return
             }
 
-            // generate server keys
-            const cmd = 'bash ' + VPN_SCRIPT_DIR
-                + '/create_vpn_server_keys.bash ' + data.data.name
+            const gen = spawn('bash',
+                [__dirname + '/vpn/gen_server.bash',
+                data.data.name,
+                data.data.port])
 
-            // copy pre-generated keys to new path with name=req.body.name
-            const keyIndx = vpnKeyPairIndex++ % VPN_KEY_PAIR_COUNT
-            const basePath = __dirname + '/vpn/sasc/' + data.data.name
-            const cmd = 'bash ' + __dirname + '/vpn/copy_keys.bash ' +
-                keyIndx + ' ' + basePath
+/*            gen.stdout.on('data', (data) => {
+              console.log(`stdout: ${data}`)
+            });
+
+            gen.stderr.on('data', (data) => {
+              console.log(`stderr: ${data}`)
+            });*/
+
+            gen.on('close', (code) => {
+              console.log(`child process exited with code ${code}`)
+            });
+
+/*            // generate server keys
+            const cmd = 'bash ' + __dirname
+                + '/vpn/gen_server.bash ' + data.data.name + ' '
+                + data.data.port
+
+            console.log(' === cmd ' + cmd)
+
             exec(cmd, (error, stdout, stderr) => {
-              console.log("stdout: " + stdout + "stderr:" + stderr)
+              console.log("stdout: " + stdout + "stderr:" + stderr)*/
 
               let r = { success: true,
                 operation: op,
@@ -93,7 +107,6 @@ function setRoutes(app) {
 
                 res.jsonp(r)
               })
-            })
           })
       })
     })
@@ -109,8 +122,8 @@ function setRoutes(app) {
     function(req,res, next) {
 
       // set up key path
-      const fileName = 'server.tar.gz'
-      const basePath = __dirname + '/vpn/sasc/' + req.resourceData.data.name
+      const fileName = 'server_vpn.tar.gz'
+      const basePath = VPN_KEYS_DIR +'/' + req.resourceData.data.name
       const pathToServerKeysFile = basePath + '/' + fileName
       console.log('pathToServerKeysFile ' + pathToServerKeysFile);
 
@@ -146,27 +159,22 @@ function setRoutes(app) {
         res.status(500).jsonp({success: false, error: 'Missing client id'})
         return
       }
-      else if (clientId >= VPN_CLIENT_KEY_COUNT) {
-        res.status(500).jsonp(
-            {success: false,
-             error: 'Client id exceeds limit of: ' + VPN_CLIENT_KEY_COUNT})
-        return
-      }
 
       if (!serverIp) {
         res.status(500).jsonp({success: false, error: 'Missing server IP'})
         return
       }
 
-      const fileName = 'client.tar.gz'
-      const basePath = __dirname + '/vpn/sasc/' + req.resourceData.data.name
-          + '/clients/' + clientId
+      const fileName = 'client_vpn.tar.gz'
+      const basePath = VPN_KEYS_DIR + '/' + req.resourceData.data.name
+          + '/' + clientId
       const pathToClientKeysFile = basePath + '/' + fileName
       console.log('pathToClientKeysFile ' + pathToClientKeysFile);
 
-      // run script to update client key conf, compress into tar.gz file,
-      const cmd = 'bash ' + __dirname + '/vpn/bundle_client.bash ' + basePath
-           + ' ' + serverIp
+      // run script put client tarbomb in the right place,
+      const cmd = 'bash ' + __dirname + '/vpn/gen_client.bash '
+          + req.resourceData.data.name + ' ' + clientId + ' ' + serverIp
+          + ' ' + req.resourceData.data.port
 
       exec(cmd, (error, stdout, stderr) => {
         console.log("stdout: " + stdout + "stderr:" + stderr)
