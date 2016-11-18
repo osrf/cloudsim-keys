@@ -54,59 +54,43 @@ function setRoutes(app) {
               return
             }
 
-            const gen = spawn('bash',
-                [__dirname + '/vpn/gen_server.bash',
-                data.data.name,
-                data.data.port])
-
-/*            gen.stdout.on('data', (data) => {
-              console.log(`stdout: ${data}`)
-            });
-
-            gen.stderr.on('data', (data) => {
-              console.log(`stderr: ${data}`)
-            });*/
+          // spawn process to gen server keys
+          const gen = spawn('bash',
+              [__dirname + '/vpn/gen_server.bash',
+              data.data.name,
+              data.data.port])
 
             gen.on('close', (code) => {
               console.log(`child process exited with code ${code}`)
             });
 
-/*            // generate server keys
-            const cmd = 'bash ' + __dirname
-                + '/vpn/gen_server.bash ' + data.data.name + ' '
-                + data.data.port
+            let r = { success: true,
+              operation: op,
+              result: data,
+              id: resourceName,
+              requester: req.user
+            }
 
-            console.log(' === cmd ' + cmd)
+            // share with another user if specified
+            if (!grantee || grantee.length === 0) {
+              res.jsonp(r)
+              return
+            }
 
-            exec(cmd, (error, stdout, stderr) => {
-              console.log("stdout: " + stdout + "stderr:" + stderr)*/
+            // grant user permission if specified
+            csgrant.grantPermission(user, grantee, resourceName, true,
+                (grantErr, result, msg) => {
 
-              let r = { success: true,
-                operation: op,
-                result: data,
-                id: resourceName,
-                requester: req.user
-              }
-
-              // share with another user if specified
-              if (!grantee || grantee.length === 0) {
-                res.jsonp(r)
+              if (grantErr) {
+                res.jsonp(error(grantErr))
                 return
               }
 
-              csgrant.grantPermission(user, grantee, resourceName, true,
-                  (grantErr, result, msg) => {
+              r.success = result
+              console.log(r)
 
-                if (grantErr) {
-                  res.jsonp(error(grantErr))
-                  return
-                }
-
-                r.success = result
-                console.log(r)
-
-                res.jsonp(r)
-              })
+              res.jsonp(r)
+            })
           })
       })
     })
@@ -165,13 +149,14 @@ function setRoutes(app) {
         return
       }
 
+      // get path to generated client key tar file
       const fileName = 'client_vpn.tar.gz'
       const basePath = VPN_KEYS_DIR + '/' + req.resourceData.data.name
           + '/' + clientId
       const pathToClientKeysFile = basePath + '/' + fileName
       console.log('pathToClientKeysFile ' + pathToClientKeysFile);
 
-      // run script put client tarbomb in the right place,
+      // run script to generate client key and put it in pathToClientKeysFile
       const cmd = 'bash ' + __dirname + '/vpn/gen_client.bash '
           + req.resourceData.data.name + ' ' + clientId + ' ' + serverIp
           + ' ' + req.resourceData.data.port
