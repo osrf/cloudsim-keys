@@ -1,3 +1,41 @@
+# Using scripts for key generation and bundling
+
+## Make the server-side keys
+
+To create server-side VPN keys and related assets:
+~~~
+sudo ./create_vpn_server_keys.bash myserver1
+~~~
+It will produce output in `/opt/sasc-vpn/myserver1`. Do this once for each
+server, using a different name for each one.
+
+## Make the client-side keys
+
+After creating the server-side keys, you can create client-side keys:
+~~~
+sudo ./create_vpn_client_keys.bash myserver1 myclient1
+~~~
+It will produce output in `/opt/sasc-vpn/myserver1`.  Do this once for each
+client, using a different name for each one.
+
+## Bundle the server-side keys
+
+After creating the server-side keys, you can bundle them:
+~~~
+sudo ./create_vpn_server_bundle.bash myserver1
+~~~
+It will produce output in `./server_vpn.tar.gz`. This tarbomb contains
+everything necessary to run that OpenVPN server.
+
+## Bundle the client-side keys
+
+After creating the server-side keys and a client-side key, and after you know
+the IP address of the server, you can bundle the client-side keys, e.g.:
+~~~
+sudo ./create_vpn_server_bundle.bash myserver1 myclient1 10.0.0.1
+~~~
+It will produce output in `./client_vpn.tar.gz`. This tarbomb contains
+everything necessary to run that OpenVPN client.
 
 # Sample Robotics Challenge (SRC) and Virtual Private Network (vpn) configuration
 
@@ -44,20 +82,20 @@ Each server needs multiple files: ca cert, server key, dh, etc... Those are
 generated in the EASY_RSA keys directory. Some are shared between the client and the server.
 
 From the src_vpnkeys (your easy_rsa install):
+~~~
+./clean-all
 ./build-ca --batch
 ./build-key-server --batch $server_name
-./build-key --batch scr-01
 ./build-dh
-
-cd $keys_directory (the keys directory inside the easy_rsa install)
-openvpn --genkey --secret ta.key
+~~~
 
 # generate client keys #
 
 For client key names (you can generate multiple keys per server), use  names like src-01-01, src-01-02 (add -xx to
 the server number). Concurrent connections of clients with different keys are supported.
-
+~~~
 ./build-key $client_name
+~~~
 
 ## Generate openvpn configs for the simulation server ##
 
