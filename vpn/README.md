@@ -20,9 +20,10 @@ client, using a different name for each one.
 
 ## Bundle the server-side keys
 
-After creating the server-side keys, you can bundle them:
+After creating the server-side keys, you can bundle them, also specifying which
+UDP port this server will listen on (the default OpenVPN port is 1196).
 ~~~
-sudo ./create_vpn_server_bundle.bash myserver1
+sudo ./create_vpn_server_bundle.bash myserver1 1196
 ~~~
 It will produce output in `./server_vpn.tar.gz`. This tarbomb contains
 everything necessary to run that OpenVPN server.
@@ -30,9 +31,10 @@ everything necessary to run that OpenVPN server.
 ## Bundle the client-side keys
 
 After creating the server-side keys and a client-side key, and after you know
-the IP address of the server, you can bundle the client-side keys, e.g.:
+the IP address and port of the server, you can bundle the client-side keys,
+e.g.:
 ~~~
-sudo ./create_vpn_client_bundle.bash myserver1 myclient1 10.0.0.1
+sudo ./create_vpn_client_bundle.bash myserver1 myclient1 10.0.0.1 1196
 ~~~
 It will produce output in `./client_vpn.tar.gz`. This tarbomb contains
 everything necessary to run that OpenVPN client.
