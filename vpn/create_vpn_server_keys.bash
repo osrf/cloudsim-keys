@@ -9,8 +9,6 @@ fi
 
 servername=$1
 
-apt-get install -y easy-rsa
-
 # This is correct for Ubuntu machines
 easy_rsa_dir=/usr/share/easy-rsa
 
