@@ -8,6 +8,8 @@ let vpnKeyPairIndex = 0;
 
 const VPN_CLIENT_KEY_COUNT = 2;
 
+const VPN_SCRIPT_DIR = __dirname + "/../vpn"
+
 // Sets the routes for downloading the keys
 // app: the express app
 // keysFilePath: the full path to the keys.zip file
@@ -41,7 +43,7 @@ function setRoutes(app) {
 
       const resourceData = {name: keyName}
 
-      csgrant.getNextResourceId('vpn-' + keyName, (err, resourceName) => {
+      csgrant.getNextResourceId('vpn', (err, resourceName) => {
         if(err) {
           res.jsonp(error(err))
           return
@@ -52,6 +54,10 @@ function setRoutes(app) {
               res.jsonp(error(err))
               return
             }
+
+            // generate server keys
+            const cmd = 'bash ' + VPN_SCRIPT_DIR
+                + '/create_vpn_server_keys.bash ' + data.data.name
 
             // copy pre-generated keys to new path with name=req.body.name
             const keyIndx = vpnKeyPairIndex++ % VPN_KEY_PAIR_COUNT
