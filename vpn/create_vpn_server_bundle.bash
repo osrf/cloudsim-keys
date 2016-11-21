@@ -28,6 +28,8 @@ cp $key_dir/dh2048.pem $tmpdir
 cp $key_dir/$servername.crt $tmpdir
 cp $key_dir/$servername.csr $tmpdir
 cp $key_dir/$servername.key $tmpdir
+cp $DIR/start_vpn.bash $tmpdir
+cp $DIR/stop_vpn.bash $tmpdir
 
 rm -f $outdir/server_vpn.tar.gz
 cd $tmpdir

@@ -1,8 +1,8 @@
 #!/usr/bin/env
 
-sudo apt-get install openvpn easy-rsa
+sudo apt-get install openvpn easy-rsa bridge-utils
 
-make-cadir easy-rsa
+#make-cadir easy-rsa
 
 # cd easy-rsa
 # . vars

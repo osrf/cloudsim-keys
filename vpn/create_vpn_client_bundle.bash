@@ -23,7 +23,7 @@ if [[ ! -d $key_dir ]]; then
 fi
 
 tmpdir=`mktemp -d`
-sed "s/SERVER_IP/$serverip/" $DIR/client_openvpn_tap.conf | sed "s/PORT/$portnumber/" > $tmpdir/openvpn.conf
+sed "s/SERVER_IP/$serverip/" $DIR/client_openvpn_tap.conf | sed "s/PORT/$portnumber/" | sed "s/CLIENT/$clientname/" > $tmpdir/openvpn.conf
 cp $key_dir/ca.crt $tmpdir
 cp $key_dir/$clientname.crt $tmpdir
 cp $key_dir/$clientname.csr $tmpdir
