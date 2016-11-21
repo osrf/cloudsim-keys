@@ -50,11 +50,19 @@ function setRoutes(app) {
           return
         }
 
+        // set up key path
+        const fileName = 'server_vpn.tar.gz'
+        const basePath = VPN_KEYS_DIR +'/' + resourceName
+        const pathToServerKeysFile = basePath + '/' + fileName
+        console.log('pathToServerKeysFile ' + pathToServerKeysFile);
+
         // spawn process to gen server keys
         const gen = spawn('bash',
             [__dirname + '/vpn/gen_server.bash',
             data.data.name,
-            data.data.port])
+            data.data.port,
+            pathToServerKeysFile
+            ])
 
         gen.on('close', (code) => {
           console.log(`child process exited with code ${code}`)
@@ -102,7 +110,7 @@ function setRoutes(app) {
 
       // set up key path
       const fileName = 'server_vpn.tar.gz'
-      const basePath = VPN_KEYS_DIR +'/' + req.resourceData.data.name
+      const basePath = VPN_KEYS_DIR +'/' + req.resourceData.name
       const pathToServerKeysFile = basePath + '/' + fileName
       console.log('pathToServerKeysFile ' + pathToServerKeysFile);
 
@@ -146,10 +154,10 @@ function setRoutes(app) {
 
       // get path to generated client key tar file
       const fileName = 'client_vpn.tar.gz'
-      const basePath = VPN_KEYS_DIR + '/' + req.resourceData.data.name
+      const basePath = VPN_KEYS_DIR + '/' + req.resourceData.name
           + '/' + clientId
       const pathToClientKeysFile = basePath + '/' + fileName
-      console.log('pathToClientKeysFile ' + pathToClientKeysFile);
+      console.log('pathToClientKeysFile ' + pathToClientKeysFile)
 
       const fileInfo = { path: pathToClientKeysFile,
                          type: 'application/gzip',
@@ -165,7 +173,7 @@ function setRoutes(app) {
         // run script to generate client key and put it in pathToClientKeysFile
         const cmd = 'bash ' + __dirname + '/vpn/gen_client.bash '
             + req.resourceData.data.name + ' ' + clientId + ' ' + serverIp
-            + ' ' + req.resourceData.data.port
+            + ' ' + req.resourceData.data.port + ' ' + pathToClientKeysFile
 
         exec(cmd, (error, stdout, stderr) => {
           console.log("stdout: " + stdout + "stderr:" + stderr)

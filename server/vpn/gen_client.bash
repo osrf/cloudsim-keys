@@ -1,8 +1,8 @@
 #!/bin/bash
 
-USAGE="gen_client.bash <servername> <clientname> <serverip> <serverport>"
+USAGE="gen_client.bash <servername> <clientname> <serverip> <serverport> <dstpath>"
 
- if (( $# != 4)); then
+ if (( $# != 5)); then
    echo $USAGE
    exit 1
  fi
@@ -11,11 +11,11 @@ SERVER=$1
 CLIENT=$2
 SERVER_IP=$3
 PORT=$4
+DST=$5
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 SCRIPT_DIR=$DIR/../../vpn
-KEYS_DIR=$DIR/../../keys/sasc
 
 TMP_DIR=`mktemp -d` && cd $TMP_DIR
 
@@ -27,7 +27,6 @@ sudo $SCRIPT_DIR/create_vpn_client_bundle.bash $SERVER $CLIENT $SERVER_IP $PORT
 
 # move keys
 SRC="$TMP_DIR/client_vpn.tar.gz"
-DST="$KEYS_DIR/$SERVER/$CLIENT/client_vpn.tar.gz"
 
 if [ -f $SRC ]
 then

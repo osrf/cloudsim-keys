@@ -1,19 +1,19 @@
 #!/bin/bash
 
-USAGE="gen_server.bash <servername> <serverport>"
+USAGE="gen_server.bash <servername> <serverport> <dstpath>"
 
- if (( $# != 2)); then
+ if (( $# != 3)); then
    echo $USAGE
    exit 1
  fi
 
 SERVER=$1
 PORT=$2
+DST=$3
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 SCRIPT_DIR=$DIR/../../vpn
-KEYS_DIR=$DIR/../../keys/sasc
 
 TMP_DIR=`mktemp -d` && cd $TMP_DIR
 
@@ -25,7 +25,6 @@ sudo $SCRIPT_DIR/create_vpn_server_bundle.bash $SERVER $PORT
 
 # move keys
 SRC="$TMP_DIR/server_vpn.tar.gz"
-DST="$KEYS_DIR/$SERVER/server_vpn.tar.gz"
 
 if [ -f $SRC ]
 then
