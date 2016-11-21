@@ -156,7 +156,7 @@ function setRoutes(app) {
                          name: fileName
                        }
 
-      // server client keys if already exist
+      // serve client keys if already exist
       if (fs.existsSync(pathToClientKeysFile)) {
         req.fileInfo = fileInfo
         next()
