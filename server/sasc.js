@@ -42,56 +42,51 @@ function setRoutes(app) {
 
       const resourceData = {name: keyName, port: serverPort}
 
-      csgrant.getNextResourceId('vpn', (err, resourceName) => {
-        if(err) {
+      csgrant.createResourceWithType(user, 'vpn', resourceData,
+          (err, data, resourceName) => {
+
+        if (err) {
           res.jsonp(error(err))
           return
         }
-        csgrant.createResource(user, resourceName, resourceData,
-          (err, data) => {
-            if (err) {
-              res.jsonp(error(err))
-              return
-            }
 
-          // spawn process to gen server keys
-          const gen = spawn('bash',
-              [__dirname + '/vpn/gen_server.bash',
-              data.data.name,
-              data.data.port])
+        // spawn process to gen server keys
+        const gen = spawn('bash',
+            [__dirname + '/vpn/gen_server.bash',
+            data.data.name,
+            data.data.port])
 
-            gen.on('close', (code) => {
-              console.log(`child process exited with code ${code}`)
-            });
+        gen.on('close', (code) => {
+          console.log(`child process exited with code ${code}`)
+        });
 
-            let r = { success: true,
-              operation: op,
-              result: data,
-              id: resourceName,
-              requester: req.user
-            }
+        let r = { success: true,
+          operation: op,
+          result: data,
+          id: resourceName,
+          requester: req.user
+        }
 
-            // share with another user if specified
-            if (!grantee || grantee.length === 0) {
-              res.jsonp(r)
-              return
-            }
+        // share with another user if specified
+        if (!grantee || grantee.length === 0) {
+          res.jsonp(r)
+          return
+        }
 
-            // grant user permission if specified
-            csgrant.grantPermission(user, grantee, resourceName, true,
-                (grantErr, result, msg) => {
+        // grant user permission if specified
+        csgrant.grantPermission(user, grantee, resourceName, true,
+            (grantErr, result, msg) => {
 
-              if (grantErr) {
-                res.jsonp(error(grantErr))
-                return
-              }
+          if (grantErr) {
+            res.jsonp(error(grantErr))
+            return
+          }
 
-              r.success = result
-              console.log(r)
+          r.success = result
+          console.log(r)
 
-              res.jsonp(r)
-            })
-          })
+          res.jsonp(r)
+        })
       })
     })
 
@@ -156,25 +151,34 @@ function setRoutes(app) {
       const pathToClientKeysFile = basePath + '/' + fileName
       console.log('pathToClientKeysFile ' + pathToClientKeysFile);
 
-      // run script to generate client key and put it in pathToClientKeysFile
-      const cmd = 'bash ' + __dirname + '/vpn/gen_client.bash '
-          + req.resourceData.data.name + ' ' + clientId + ' ' + serverIp
-          + ' ' + req.resourceData.data.port
-
-      exec(cmd, (error, stdout, stderr) => {
-        console.log("stdout: " + stdout + "stderr:" + stderr)
-
-        // verify key exists
-        if (!fs.existsSync(pathToClientKeysFile)) {
-          res.status(500).jsonp({success: false, error: 'Key not found'})
-          return
-        }
-        req.fileInfo = { path: pathToClientKeysFile,
+      const fileInfo = { path: pathToClientKeysFile,
                          type: 'application/gzip',
                          name: fileName
                        }
+
+      // server client keys if already exist
+      if (fs.existsSync(pathToClientKeysFile)) {
+        req.fileInfo = fileInfo
         next()
-      })
+      }
+      else {
+        // run script to generate client key and put it in pathToClientKeysFile
+        const cmd = 'bash ' + __dirname + '/vpn/gen_client.bash '
+            + req.resourceData.data.name + ' ' + clientId + ' ' + serverIp
+            + ' ' + req.resourceData.data.port
+
+        exec(cmd, (error, stdout, stderr) => {
+          console.log("stdout: " + stdout + "stderr:" + stderr)
+
+          // verify key exists
+          if (!fs.existsSync(pathToClientKeysFile)) {
+            res.status(500).jsonp({success: false, error: 'Key not found'})
+            return
+          }
+          req.fileInfo = fileInfo
+          next()
+        })
+      }
     },
     // with a req.fileInfo in place, this middleware will
     // download the file from the disk
