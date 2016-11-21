@@ -1,0 +1,2 @@
+# Static IP for the payload machine
+ifconfig-push 192.168.2.10 255.255.255.0
