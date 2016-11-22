@@ -152,16 +152,26 @@ function setRoutes(app) {
         return
       }
 
+      // check if server key exists
+      const serverFileName = 'server_vpn.tar.gz'
+      const serverBasePath = VPN_KEYS_DIR +'/' + req.resourceData.name
+      const pathToServerKeysFile = serverBasePath + '/' + serverFileName
+      // serve client keys if already exist
+      if (!fs.existsSync(pathToServerKeysFile)) {
+        res.status(500).jsonp({success: false, error: 'Server key not ready'})
+        return
+      }
+
       // get path to generated client key tar file
-      const fileName = 'client_vpn.tar.gz'
+      const clientFileName = 'client_vpn.tar.gz'
       const basePath = VPN_KEYS_DIR + '/' + req.resourceData.name
           + '/' + clientId
-      const pathToClientKeysFile = basePath + '/' + fileName
+      const pathToClientKeysFile = basePath + '/' + clientFileName
       console.log('pathToClientKeysFile ' + pathToClientKeysFile)
 
       const fileInfo = { path: pathToClientKeysFile,
                          type: 'application/gzip',
-                         name: fileName
+                         name: clientFileName
                        }
 
       // serve client keys if already exist
