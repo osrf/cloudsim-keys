@@ -41,6 +41,9 @@ dotenv.load()
 // the port of the server
 const port = process.env.PORT || 4000
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+process.env.CLOUDSIM_PORTAL_DB = process.env.CLOUDSIM_PORTAL_DB || 'localhost'
+
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 console.log('admin user: ' + adminUser)
 
@@ -53,12 +56,11 @@ fs.statSync(pathToServerKeysFile)
 fs.statSync(pathToClientKeysFile)*/
 
 const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
-const dbUrl = '127.0.0.1'
 
 // create initial resources
 csgrant.init(adminUser, {'vpn_keys': {}},
                         dbName,
-                        dbUrl,
+                        process.env.CLOUDSIM_PORTAL_DB,
                         httpServer,
                         (err)=> {
     if(err)
@@ -91,7 +93,7 @@ cloudsim-grant version: ${csgrantVersion}
 admin user: ${adminUser}
 environment: ${env}
 redis database name: ${dbName}
-redis database url: ${dbUrl}
+redis database url: ${process.env.CLOUDSIM_PORTAL_DB}
 ============================================
 `
   return s
