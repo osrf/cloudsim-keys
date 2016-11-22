@@ -54,4 +54,4 @@ ifconfig $eth 0.0.0.0 promisc up
 
 ifconfig $br $eth_ip netmask $eth_netmask broadcast $eth_broadcast
 
-openvpn --config $conffile --dev $tap --server-bridge ${subnet}.1 255.255.255.0 ${subnet}.150 ${subnet}.200 --writepid /tmp/openvpn-$name.pid --daemon
+openvpn --config $conffile --dev $tap --server-bridge ${subnet}.1 255.255.255.0 ${subnet}.150 ${subnet}.200 --writepid /tmp/openvpn-$name.pid --client-config-dir ${PWD}/staticclients --daemon
