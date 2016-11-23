@@ -4,7 +4,7 @@
 # Requires: bridge-utils
 #################################
 
-USAGE=$'stop_vpn_server_with_bridge.bash <name> <subnet> <configfile>\nFor example:\n  sudo ./stop_vpn_server_with_bridge.bash team-blue'
+USAGE=$'stop_vpn_server_with_bridge.bash <name>\nFor example:\n  sudo ./stop_vpn_server_with_bridge.bash blue'
 
 if (( $# != 1)); then
   echo "$USAGE"
