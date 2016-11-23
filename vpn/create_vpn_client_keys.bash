@@ -13,7 +13,7 @@ clientname=$2
 # This is correct for Ubuntu machines
 easy_rsa_dir=/usr/share/easy-rsa
 
-key_root_dir=/opt/sasc-vpn
+key_root_dir=/tmp/sasc-vpn
 key_dir=$key_root_dir/$servername
 if [[ ! -d $key_dir ]]; then
   echo "There's no directory $key_dir. Did you first run create_vpn_server_keys.bash?"

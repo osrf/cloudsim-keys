@@ -18,10 +18,10 @@ SCRIPT_DIR=$DIR/../../vpn
 TMP_DIR=`mktemp -d` && cd $TMP_DIR
 
 # gen key in /opt/sasc-vpn/
-sudo $SCRIPT_DIR/create_vpn_server_keys.bash $SERVER
+$SCRIPT_DIR/create_vpn_server_keys.bash $SERVER
 
 # create bundle
-sudo $SCRIPT_DIR/create_vpn_server_bundle.bash $SERVER $PORT
+$SCRIPT_DIR/create_vpn_server_bundle.bash $SERVER $PORT
 
 # move keys
 SRC="$TMP_DIR/server_vpn.tar.gz"
