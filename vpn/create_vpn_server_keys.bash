@@ -12,7 +12,7 @@ servername=$1
 # This is correct for Ubuntu machines
 easy_rsa_dir=/usr/share/easy-rsa
 
-key_root_dir=/opt/sasc-vpn
+key_root_dir=/tmp/sasc-vpn
 key_dir=$key_root_dir/$servername
 mkdir -p $key_dir
 
