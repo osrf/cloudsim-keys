@@ -4,7 +4,6 @@ const fs = require('fs')
 const exec = require('child_process').exec
 const spawn = require('child_process').spawn
 
-const VPN_SCRIPT_DIR = __dirname + "/../vpn"
 const VPN_KEYS_DIR = __dirname + "/../keys/sasc"
 
 // Sets the routes for downloading the keys
@@ -43,59 +42,59 @@ function setRoutes(app) {
       const resourceData = {name: keyName, port: serverPort}
 
       csgrant.createResourceWithType(user, 'vpn', resourceData,
-          (err, data, resourceName) => {
+        (err, data, resourceName) => {
 
-        if (err) {
-          res.jsonp(error(err))
-          return
-        }
-
-        // set up key path
-        const fileName = 'server_vpn.tar.gz'
-        const basePath = VPN_KEYS_DIR +'/' + resourceName
-        const pathToServerKeysFile = basePath + '/' + fileName
-        console.log('pathToServerKeysFile ' + pathToServerKeysFile);
-
-        // spawn process to gen server keys
-        const gen = spawn('bash',
-            [__dirname + '/vpn/gen_server.bash',
-            data.data.name,
-            data.data.port,
-            pathToServerKeysFile
-            ])
-
-        gen.on('close', (code) => {
-          console.log(`child process exited with code ${code}`)
-        });
-
-        let r = { success: true,
-          operation: op,
-          result: data,
-          id: resourceName,
-          requester: req.user
-        }
-
-        // share with another user if specified
-        if (!grantee || grantee.length === 0) {
-          res.jsonp(r)
-          return
-        }
-
-        // grant user permission if specified
-        csgrant.grantPermission(user, grantee, resourceName, true,
-            (grantErr, result, msg) => {
-
-          if (grantErr) {
-            res.jsonp(error(grantErr))
+          if (err) {
+            res.jsonp(error(err))
             return
           }
 
-          r.success = result
-          console.log(r)
+          // set up key path
+          const fileName = 'server_vpn.tar.gz'
+          const basePath = VPN_KEYS_DIR +'/' + resourceName
+          const pathToServerKeysFile = basePath + '/' + fileName
+          console.log('pathToServerKeysFile ' + pathToServerKeysFile);
 
-          res.jsonp(r)
+          // spawn process to gen server keys
+          const gen = spawn('bash',
+            [__dirname + '/vpn/gen_server.bash',
+              data.data.name,
+              data.data.port,
+              pathToServerKeysFile
+            ])
+
+          gen.on('close', (code) => {
+            console.log(`child process exited with code ${code}`)
+          });
+
+          let r = { success: true,
+            operation: op,
+            result: data,
+            id: resourceName,
+            requester: req.user
+          }
+
+          // share with another user if specified
+          if (!grantee || grantee.length === 0) {
+            res.jsonp(r)
+            return
+          }
+
+          // grant user permission if specified
+          csgrant.grantPermission(user, grantee, resourceName, true,
+            (grantErr, result) => {
+
+              if (grantErr) {
+                res.jsonp(error(grantErr))
+                return
+              }
+
+              r.success = result
+              console.log(r)
+
+              res.jsonp(r)
+            })
         })
-      })
     })
 
   app.get('/tap/sasc/server/:resourceId',
@@ -119,10 +118,11 @@ function setRoutes(app) {
         return
       }
 
-      req.fileInfo = { path: pathToServerKeysFile,
-                       type: 'application/gzip',
-                       name: fileName
-                     }
+      req.fileInfo = {
+        path: pathToServerKeysFile,
+        type: 'application/gzip',
+        name: fileName
+      }
       next()
     },
     // with a req.fileInfo in place, this middleware will
@@ -169,10 +169,11 @@ function setRoutes(app) {
       const pathToClientKeysFile = basePath + '/' + clientFileName
       console.log('pathToClientKeysFile ' + pathToClientKeysFile)
 
-      const fileInfo = { path: pathToClientKeysFile,
-                         type: 'application/gzip',
-                         name: clientFileName
-                       }
+      const fileInfo = {
+        path: pathToClientKeysFile,
+        type: 'application/gzip',
+        name: clientFileName
+      }
 
       // serve client keys if already exist
       if (fs.existsSync(pathToClientKeysFile)) {

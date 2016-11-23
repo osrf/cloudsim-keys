@@ -3,11 +3,9 @@
 const express = require('express')
 const app = express()
 const fs = require('fs')
-const pack = require('../package')
 const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
-const util = require('util')
 const sasc = require('./sasc')
 
 let httpServer = null
@@ -31,7 +29,6 @@ app.use(morgan('combined'))
 
 const dotenv = require('dotenv')
 
-const spawn = require('child_process').spawn
 const csgrant = require('cloudsim-grant')
 
 // the configuration values are set in the local .env file
@@ -58,27 +55,27 @@ fs.statSync(pathToClientKeysFile)*/
 const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
 
 // create initial resources
-csgrant.init(adminUser, {'vpn_keys': {}},
-                        dbName,
-                        process.env.CLOUDSIM_PORTAL_DB,
-                        httpServer,
-                        (err)=> {
+csgrant.init(adminUser, 
+  {'vpn_keys': {}},
+  dbName,
+  process.env.CLOUDSIM_PORTAL_DB,
+  httpServer,
+  (err)=> {
     if(err)
       console.log('Error loading resources: ' + err)
     else {
       console.log('resources loaded')
       httpServer.listen(port, function(){
         console.log('ssl: ' + useHttps)
-        console.log('listening on *:' + port);
+        console.log('listening on *:' + port)
       })
     }
-})
+  })
 // app.use(express.static(__dirname + '../public'));
 
 
 
 function details() {
-  const x = 'xxxxxxxxxxxxxxxxxxxx'
   const date = new Date()
   const version = require('../package.json').version
   const csgrantVersion = require('cloudsim-grant/package.json').version
