@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
 const sasc = require('./sasc')
+const path = require('path')
 
 let httpServer = null
 const useHttps = false
@@ -25,7 +26,16 @@ app.use(cors())
 app.use(bodyParser.json())
 
 // prints all requests to the terminal
-app.use(morgan('combined'))
+app.use(morgan('combined', {
+  skip: function (req, res) {
+    // skip /api stuff
+    const isApi = req.originalUrl.startsWith('/api/')
+    if (isApi) {
+      return true
+    }
+    return false
+  }
+}))
 
 const dotenv = require('dotenv')
 
@@ -55,7 +65,7 @@ fs.statSync(pathToClientKeysFile)*/
 const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
 
 // create initial resources
-csgrant.init(adminUser, 
+csgrant.init(adminUser,
   {'vpn_keys': {}},
   dbName,
   process.env.CLOUDSIM_KEYS_DB,
@@ -71,9 +81,6 @@ csgrant.init(adminUser,
       })
     }
   })
-// app.use(express.static(__dirname + '../public'));
-
-
 
 function details() {
   const date = new Date()
@@ -98,13 +105,22 @@ redis database url: ${process.env.CLOUDSIM_KEYS_DB}
 
 console.log(details())
 
+app.use("/api", express.static(path.join(__dirname, '/../api')));
+
 app.get('/', function (req, res) {
   const info = details()
   const s = `
+    <html>
+    <body>
+    <img src="api/images/cloudsim.svg" style="height: 2em"/>
     <h1>Cloudsim-keys server</h1>
+    <div>Cloud service is running</div>
     <pre>
-  	${info}
+    ${info}
     </pre>
+    <a href='/api'>API documentation</a>
+    </body>
+    </html>
   `
   res.end(s)
 })
