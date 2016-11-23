@@ -39,7 +39,7 @@ dotenv.load()
 const port = process.env.PORT || 4000
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
-process.env.CLOUDSIM_PORTAL_DB = process.env.CLOUDSIM_PORTAL_DB || 'localhost'
+process.env.CLOUDSIM_KEYS_DB = process.env.CLOUDSIM_KEYS_DB || 'localhost'
 
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 console.log('admin user: ' + adminUser)
@@ -58,7 +58,7 @@ const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
 csgrant.init(adminUser, 
   {'vpn_keys': {}},
   dbName,
-  process.env.CLOUDSIM_PORTAL_DB,
+  process.env.CLOUDSIM_KEYS_DB,
   httpServer,
   (err)=> {
     if(err)
@@ -90,7 +90,7 @@ cloudsim-grant version: ${csgrantVersion}
 admin user: ${adminUser}
 environment: ${env}
 redis database name: ${dbName}
-redis database url: ${process.env.CLOUDSIM_PORTAL_DB}
+redis database url: ${process.env.CLOUDSIM_KEYS_DB}
 ============================================
 `
   return s
@@ -113,6 +113,5 @@ app.get('/', function (req, res) {
 csgrant.setPermissionsRoutes(app)
 
 sasc.setRoutes(app)
-
 // Expose app
 exports = module.exports = app
