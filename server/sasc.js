@@ -83,7 +83,6 @@ function setRoutes(app) {
           // grant user permission if specified
           csgrant.grantPermission(user, grantee, resourceName, true,
             (grantErr, result) => {
-
               if (grantErr) {
                 res.jsonp(error(grantErr))
                 return
