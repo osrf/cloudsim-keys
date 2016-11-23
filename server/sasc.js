@@ -4,7 +4,8 @@ const fs = require('fs')
 const exec = require('child_process').exec
 const spawn = require('child_process').spawn
 
-const VPN_KEYS_DIR = __dirname + "/../keys/sasc"
+const VPN_KEYS_DIR = process.env.CLOUDSIM_KEYS_DIR ||
+    __dirname + "/../keys/sasc"
 
 // Sets the routes for downloading the keys
 // app: the express app
