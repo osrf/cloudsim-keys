@@ -4,9 +4,9 @@
 # Requires: bridge-utils
 #################################
 
-USAGE=$'start_vpn_server_with_bridge.bash <name> <subnet> <configfile>\nFor example:\n  sudo ./start_vpn_server_with_bridge.bash team-blue 192.168.2 server.conf'
+USAGE=$'start_vpn_server_with_bridge.bash <name> <subnet> <configfile> <other_subnet>\nFor example:\n  sudo ./start_vpn_server_with_bridge.bash blue 192.168.2 openvpn.conf 192.168.3'
 
-if (( $# != 3)); then
+if (( $# != 4)); then
   echo "$USAGE"
   exit 1
 fi
@@ -16,6 +16,7 @@ fi
 name=$1
 subnet=$2
 conffile=$3
+other_subnet=$4
 eth="eth-$name"
 
 # Create a dummy ethernet interface that we'll use for bridging
@@ -54,4 +55,4 @@ ifconfig $eth 0.0.0.0 promisc up
 
 ifconfig $br $eth_ip netmask $eth_netmask broadcast $eth_broadcast
 
-openvpn --config $conffile --dev $tap --server-bridge ${subnet}.1 255.255.255.0 ${subnet}.150 ${subnet}.200 --writepid /tmp/openvpn-$name.pid --client-config-dir ${PWD}/staticclients --daemon
+openvpn --config $conffile --dev $tap --server-bridge ${subnet}.1 255.255.255.0 ${subnet}.150 ${subnet}.200 --writepid /tmp/openvpn-$name.pid --client-config-dir ${PWD}/staticclients --push "route ${other_subnet}.1 255.255.255.255" --daemon
