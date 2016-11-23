@@ -22,5 +22,3 @@ ADMIN_USER="admin"
 ## start the server ##
 
 npm start
-
-
