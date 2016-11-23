@@ -8,10 +8,10 @@ const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
 const util = require('util')
-const machinetypes = require('./machinetypes')
+const sasc = require('./sasc')
 
 let httpServer = null
-const useHttps = true
+const useHttps = false
 if(useHttps) {
   const privateKey  = fs.readFileSync(__dirname + '/key.pem', 'utf8')
   const certificate = fs.readFileSync(__dirname + '/key-cert.pem', 'utf8')
@@ -39,50 +39,83 @@ const csgrant = require('cloudsim-grant')
 dotenv.load()
 
 // the port of the server
-const port = process.env.CLOUDSIM_PORT || 4000
+const port = process.env.PORT || 4000
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+process.env.CLOUDSIM_PORTAL_DB = process.env.CLOUDSIM_PORTAL_DB || 'localhost'
 
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 console.log('admin user: ' + adminUser)
 
-// we create 2 initial resources
-csgrant.init(adminUser, {'vpn_keys': {},
-                         'machine_types': {}
-                        },
-                        'cloudsim-keys',
+
+/*// setup
+// error if files are not there
+const pathToServerKeysFile = __dirname + '/server.zip'
+const pathToClientKeysFile = __dirname + '/client.zip'
+fs.statSync(pathToServerKeysFile)
+fs.statSync(pathToClientKeysFile)*/
+
+const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
+
+// create initial resources
+csgrant.init(adminUser, {'vpn_keys': {}},
+                        dbName,
+                        process.env.CLOUDSIM_PORTAL_DB,
+                        httpServer,
                         (err)=> {
     if(err)
       console.log('Error loading resources: ' + err)
-    else
+    else {
       console.log('resources loaded')
+      httpServer.listen(port, function(){
+        console.log('ssl: ' + useHttps)
+        console.log('listening on *:' + port);
+      })
+    }
 })
 // app.use(express.static(__dirname + '../public'));
 
-app.get('/', function (req, res) {
-  // res.sendFile(__dirname + '/../public/index.html')
+
+
+function details() {
+  const x = 'xxxxxxxxxxxxxxxxxxxx'
   const date = new Date()
-  let s = `
-    <h1>${pack.name}</h1>
-    repo: <a href="${pack.repository.url}" >${pack.repository.url}</a>
-    <br>version: ${pack.version}
-    <br>Server is running: ${date}
+  const version = require('../package.json').version
+  const csgrantVersion = require('cloudsim-grant/package.json').version
+  const env = app.get('env')
+
+  const s = `
+============================================
+date: ${date}
+cloudsim-keys version: ${version}
+port: ${port}
+cloudsim-grant version: ${csgrantVersion}
+admin user: ${adminUser}
+environment: ${env}
+redis database name: ${dbName}
+redis database url: ${process.env.CLOUDSIM_PORTAL_DB}
+============================================
 `
+  return s
+}
+
+console.log(details())
+
+app.get('/', function (req, res) {
+  const info = details()
+  const s = `
+    <h1>Cloudsim-keys server</h1>
+    <pre>
+  	${info}
+    </pre>
+  `
   res.end(s)
 })
 
-// setup the routes
-app.get('/permissions',
-  csgrant.authenticate,
-  csgrant.userResources,
-  csgrant.allResources)
-app.post('/permissions', csgrant.authenticate, csgrant.grant)
-app.delete('/permissions',csgrant.authenticate, csgrant.revoke)
-machinetypes.setRoutes(app)
+// setup the /permissions routes
+csgrant.setPermissionsRoutes(app)
+
+sasc.setRoutes(app)
 
 // Expose app
 exports = module.exports = app
-
-httpServer.listen(port, function(){
-  console.log('ssl: ' + useHttps)
-	console.log('listening on *:' + port);
-})
-
