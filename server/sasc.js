@@ -81,18 +81,28 @@ function setRoutes(app) {
             return
           }
 
-          // grant user permission if specified
-          csgrant.grantPermission(user, grantee, resourceName, true,
-            (grantErr, result) => {
-              if (grantErr) {
-                res.jsonp(error(grantErr))
+          // if grantee has write access already, don't downgrade to read access
+          csgrant.isAuthorized(grantee, resourceName, false,
+            (authErr, authorized) => {
+              if (authErr) {
+                res.jsonp(error(authErr))
                 return
               }
+              let readOnly = !authorized
 
-              r.success = result
-              console.log(r)
+              // grant the permission
+              csgrant.grantPermission(user, grantee, resourceName, readOnly,
+                (grantErr, result) => {
+                  if (grantErr) {
+                    res.jsonp(error(grantErr))
+                    return
+                  }
 
-              res.jsonp(r)
+                  r.success = result
+                  console.log(r)
+
+                  res.jsonp(r)
+                })
             })
         })
     })
