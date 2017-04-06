@@ -7,6 +7,7 @@ const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
 const sasc = require('./sasc')
+const src = require('./src')
 const path = require('path')
 
 let httpServer = null
@@ -129,5 +130,6 @@ app.get('/', function (req, res) {
 csgrant.setPermissionsRoutes(app)
 
 sasc.setRoutes(app)
+src.setRoutes(app)
 // Expose app
 exports = module.exports = app
