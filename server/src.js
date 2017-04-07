@@ -32,8 +32,19 @@ function setRoutes(app) {
       }
 
       // src key gen permission checking
-      if (req.user !== process.env.CLOUDSIM_ADMIN &&
-      req.user.toLowerCase().indexOf('src') < 0) {
+      let authorized = false
+      if (req.user === process.env.CLOUDSIM_ADMIN)
+        authorized = true
+      else {
+        for (let i = 0; i < req.identities.length; ++i) {
+          if (req.identities[i].toLowerCase().indexOf('src') === 0 &&
+              req.identities[i].indexOf('@') < 0) {
+            authorized = true
+            break
+          }
+        }
+      }
+      if (!authorized) {
         res.status(403).jsonp(
           error('User is not authorized to generate keys'))
         return
