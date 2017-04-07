@@ -18,17 +18,17 @@ function setRoutes(app) {
     csgrant.ownsResource('vpn_keys', false),
     function (req, res) {
 
-      const error = function(msg) {
-        return {operation: op,
-          success: false,
-          error: msg}
-      }
-
       const op = 'createVpnKey'
       const user = req.user
       const keyName = req.body.name
       const serverPort = req.body.port
       const grantee = req.body.user
+
+      const error = function(msg) {
+        return {operation: op,
+          success: false,
+          error: msg}
+      }
 
       console.log('name: ' + keyName)
       console.log('port: ' + serverPort)

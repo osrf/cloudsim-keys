@@ -15,8 +15,15 @@ function setRoutes(app) {
   // create vpn key resource
   app.post('/tap/src/key',
     csgrant.authenticate,
-    csgrant.ownsResource('vpn_keys', false),
+    // user less strict permission checking method specific to SRC
+    // csgrant.ownsResource('vpn_keys', false),
     function (req, res) {
+
+      const op = 'createVpnKey'
+      const user = req.user
+      const keyName = req.body.name
+      const serverPort = req.body.port
+      const grantee = req.body.user
 
       const error = function(msg) {
         return {operation: op,
@@ -24,11 +31,14 @@ function setRoutes(app) {
           error: msg}
       }
 
-      const op = 'createVpnKey'
-      const user = req.user
-      const keyName = req.body.name
-      const serverPort = req.body.port
-      const grantee = req.body.user
+      // src key gen permission checking
+      console.log(req.user + ' vs ' + process.env.CLOUDSIM_ADMIN )
+      if (req.user !== process.env.CLOUDSIM_ADMIN &&
+      req.user.toLowerCase().indexOf('src') < 0) {
+        res.status(403).jsonp(
+          error('User is not authorized to generate keys'))
+        return
+      }
 
       console.log('name: ' + keyName)
       console.log('port: ' + serverPort)
