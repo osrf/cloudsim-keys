@@ -32,7 +32,6 @@ function setRoutes(app) {
       }
 
       // src key gen permission checking
-      console.log(req.user + ' vs ' + process.env.CLOUDSIM_ADMIN )
       if (req.user !== process.env.CLOUDSIM_ADMIN &&
       req.user.toLowerCase().indexOf('src') < 0) {
         res.status(403).jsonp(

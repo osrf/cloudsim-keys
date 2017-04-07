@@ -26,7 +26,7 @@ process.env.CLOUDSIM_ADMIN = process.env.CLOUDSIM_ADMIN || 'admin'
 const adminUser = process.env.CLOUDSIM_ADMIN
 console.log('admin user: ' + adminUser)
 
-// load files after env is setup so they have access to them
+// load files after env is setup so they have access to the env vars
 const sasc = require('./sasc')
 const src = require('./src')
 
