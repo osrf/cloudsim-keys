@@ -68,9 +68,36 @@ fs.statSync(pathToClientKeysFile)*/
 
 const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
 
+// Root resources
+const resources = [
+  {
+    name: 'root',
+    data : {},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  },
+  {
+    name: 'vpn_keys',
+    data:{},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  }
+]
+
 // create initial resources
-csgrant.init(adminUser,
-  {'vpn_keys': {}},
+csgrant.init(resources,
   dbName,
   process.env.CLOUDSIM_KEYS_DB,
   httpServer,
