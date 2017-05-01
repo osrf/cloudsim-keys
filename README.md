@@ -1,6 +1,6 @@
-# Cloudsim keys [ ![Codeship Status for osrf/cloudsim-keys](https://codeship.com/projects/915a1070-0a4d-0134-bce0-06f29080c625/status)](https://codeship.com/projects/155557)
+# Cloudsim keys [ ![Codeship Status for osrf/cloudsim-keys](https://codeship.com/projects/196a88f0-52b2-0134-2889-02adab5d782c/status?branch=production)](https://codeship.com/projects/171619)
 
-This is the cryptographic keys server for Cloudsim
+This is the cryptographic keys server for [Cloudsim](https://bitbucket.org/osrf/cloudsim)
 
 ## What is this repository for? ##
 
@@ -8,9 +8,9 @@ This is the cryptographic keys server for Cloudsim
 
 ## More information ##
 
-See the Cloudsim portal
+See the Cloudsim keys in the wiki
 
-* [Cloudsim portal](https://bitbucket.org/osrf/cloudsim/wiki/Home)
+* [Cloudsim wiki](https://bitbucket.org/osrf/cloudsim/wiki/Home)
 
 ## Configuration ##
 

@@ -6,8 +6,29 @@ const fs = require('fs')
 const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
-const sasc = require('./sasc')
 const path = require('path')
+const dotenv = require('dotenv')
+
+const csgrant = require('cloudsim-grant')
+
+// the configuration values are set in the local .env file
+// this loads the .env content and puts it in the process environment.
+dotenv.load()
+
+// the port of the server
+process.env.PORT = process.env.PORT || 4000
+const port = process.env.PORT
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+process.env.CLOUDSIM_KEYS_DB = process.env.CLOUDSIM_KEYS_DB || 'localhost'
+
+process.env.CLOUDSIM_ADMIN = process.env.CLOUDSIM_ADMIN || 'admin'
+const adminUser = process.env.CLOUDSIM_ADMIN
+console.log('admin user: ' + adminUser)
+
+// load files after env is setup so they have access to the env vars
+const sasc = require('./sasc')
+const src = require('./src')
 
 let httpServer = null
 const useHttps = false
@@ -37,23 +58,6 @@ app.use(morgan('combined', {
   }
 }))
 
-const dotenv = require('dotenv')
-
-const csgrant = require('cloudsim-grant')
-
-// the configuration values are set in the local .env file
-// this loads the .env content and puts it in the process environment.
-dotenv.load()
-
-// the port of the server
-const port = process.env.PORT || 4000
-
-process.env.NODE_ENV = process.env.NODE_ENV || 'development'
-process.env.CLOUDSIM_KEYS_DB = process.env.CLOUDSIM_KEYS_DB || 'localhost'
-
-const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
-console.log('admin user: ' + adminUser)
-
 
 /*// setup
 // error if files are not there
@@ -64,9 +68,36 @@ fs.statSync(pathToClientKeysFile)*/
 
 const dbName = 'cloudsim-keys' + (process.env.NODE_ENV == 'test'? '-test': '')
 
+// Root resources
+const resources = [
+  {
+    name: 'root',
+    data : {},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  },
+  {
+    name: 'vpn_keys',
+    data:{},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  }
+]
+
 // create initial resources
-csgrant.init(adminUser,
-  {'vpn_keys': {}},
+csgrant.init(resources,
   dbName,
   process.env.CLOUDSIM_KEYS_DB,
   httpServer,
@@ -129,5 +160,6 @@ app.get('/', function (req, res) {
 csgrant.setPermissionsRoutes(app)
 
 sasc.setRoutes(app)
+src.setRoutes(app)
 // Expose app
 exports = module.exports = app

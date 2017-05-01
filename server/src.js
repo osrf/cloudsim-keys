@@ -5,7 +5,7 @@ const exec = require('child_process').exec
 const spawn = require('child_process').spawn
 
 const VPN_KEYS_DIR = process.env.CLOUDSIM_KEYS_DIR ||
-    __dirname + "/../keys/sasc"
+    __dirname + "/../keys/src"
 
 // Sets the routes for downloading the keys
 // app: the express app
@@ -13,9 +13,10 @@ const VPN_KEYS_DIR = process.env.CLOUDSIM_KEYS_DIR ||
 function setRoutes(app) {
 
   // create vpn key resource
-  app.post('/tap/sasc/key',
+  app.post('/tap/src/key',
     csgrant.authenticate,
-    csgrant.ownsResource('vpn_keys', false),
+    // user less strict permission checking method specific to SRC
+    // csgrant.ownsResource('vpn_keys', false),
     function (req, res) {
 
       const op = 'createVpnKey'
@@ -28,6 +29,25 @@ function setRoutes(app) {
         return {operation: op,
           success: false,
           error: msg}
+      }
+
+      // src key gen permission checking
+      let authorized = false
+      if (req.user === process.env.CLOUDSIM_ADMIN)
+        authorized = true
+      else {
+        for (let i = 0; i < req.identities.length; ++i) {
+          if (req.identities[i].toLowerCase().indexOf('src') === 0 &&
+              req.identities[i].indexOf('@') < 0) {
+            authorized = true
+            break
+          }
+        }
+      }
+      if (!authorized) {
+        res.status(403).jsonp(
+          error('User is not authorized to generate keys'))
+        return
       }
 
       console.log('name: ' + keyName)
@@ -107,7 +127,7 @@ function setRoutes(app) {
         })
     })
 
-  app.get('/tap/sasc/server/:resourceId',
+  app.get('/tap/src/server/:resourceId',
     // user must have valid token (in req.query)
     csgrant.authenticate,
     // user must have write access to ':resourceId' resource
@@ -139,7 +159,7 @@ function setRoutes(app) {
     // download the file from the disk
     csgrant.downloadFilePath)
 
-  app.get('/tap/sasc/client/:resourceId',
+  app.get('/tap/src/client/:resourceId',
     // user must have valid token (in req.query)
     csgrant.authenticate,
     // user must have readOnly access to ':resourceId' resource
