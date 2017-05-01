@@ -1,4 +1,4 @@
-# Cloudsim keys [ ![Codeship Status for osrf/cloudsim-keys](https://codeship.com/projects/196a88f0-52b2-0134-2889-02adab5d782c/status?branch=default)](https://codeship.com/projects/171619)
+# Cloudsim keys [ ![Codeship Status for osrf/cloudsim-keys](https://codeship.com/projects/196a88f0-52b2-0134-2889-02adab5d782c/status?branch=production)](https://codeship.com/projects/171619)
 
 This is the cryptographic keys server for [Cloudsim](https://bitbucket.org/osrf/cloudsim)
 
