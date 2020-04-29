@@ -22,7 +22,7 @@
     "morgan": "^1.7.0"
   },
   "devDependencies": {
-    "eslint": "^3.6.1",
+    "eslint": "^6.8.0",
     "gulp-coveralls": "^0.1.4",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
